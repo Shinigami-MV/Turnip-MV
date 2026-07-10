@@ -106,7 +106,11 @@ meson setup "$BUILD_DIR" "$MESA_DIR" \
     -Dlibarchive:regex=disabled \
     -Dlibarchive:xattr=disabled \
     -Dlibarchive:acl=disabled \
-    -Dlibarchive:tests=disabled
+    -Dlibarchive:tests=disabled\
+    -Db_lto=true \
+    -Db_lto_mode=thin \
+    -Db_ndebug=true \
+    -Dstrip=true
 
 echo
 echo "Compiling Turnip..."
