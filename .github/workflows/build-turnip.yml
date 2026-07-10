@@ -4,25 +4,29 @@ on:
   workflow_dispatch:
     inputs:
       mesa_ref:
-        description: "Mesa tag/branch/commit"
+        description: "Mesa tag, branch or commit"
         required: true
         default: "mesa-26.1.0"
+
       build_name:
-        description: "Name shown in Winlator/AdrenoTools"
+        description: "Name shown in Winlator / AdrenoTools"
         required: true
         default: "Turnip MV POCO F6 A735 - Baseline R1"
+
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
-      - '.github/workflows/build-turnip.yml'
-      - 'scripts/**'
-      - 'patches/**'
+      - ".github/workflows/build-turnip.yml"
+      - "scripts/**"
+      - "patches/**"
 
 permissions:
   contents: read
 
 jobs:
   build:
+    name: Build Android ARM64 driver
     runs-on: ubuntu-24.04
     timeout-minutes: 120
 
@@ -31,65 +35,57 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install host build tools
+        shell: bash
         run: |
+          set -euxo pipefail
+
           sudo apt-get update
+
           sudo apt-get install -y \
-            git python3-pip python3-setuptools python3-wheel \
-            ninja-build meson pkg-config ccache \
-            bison flex glslang-tools spirv-tools \
-            libexpat1-dev libzstd-dev zlib1g-dev
-          python3 -m pip install --user --upgrade meson mako pyyaml packaging
+            git \
+            python3-pip \
+            python3-setuptools \
+            python3-wheel \
+            ninja-build \
+            meson \
+            pkg-config \
+            ccache \
+            bison \
+            flex \
+            glslang-tools \
+            spirv-tools \
+            libexpat1-dev \
+            libzstd-dev \
+            zlib1g-dev \
+            libssl-dev
+
+          python3 -m pip install \
+            --user \
+            --upgrade \
+            meson \
+            mako \
+            pyyaml \
+            packaging
+
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Install Android NDK
         shell: bash
         run: |
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358"
-          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/28.2.13676358" >> "$GITHUB_ENV"
+          set -euxo pipefail
+
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            --licenses >/dev/null || true
+
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "ndk;28.2.13676358"
+
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/28.2.13676358" \
+            >> "$GITHUB_ENV"
 
       - name: Clone Mesa
-        run: |
-          git clone --filter=blob:none https://gitlab.freedesktop.org/mesa/mesa.git mesa
-          cd mesa
-          git checkout "${{ inputs.mesa_ref || 'mesa-26.1.0' }}"
-          git rev-parse HEAD | tee ../mesa-commit.txt
-
-      - name: Apply optional patches
         shell: bash
         run: |
-          shopt -s nullglob
-          patches=(patches/*.patch)
-          if [ ${#patches[@]} -gt 0 ]; then
-            for patch in "${patches[@]}"; do
-              echo "Applying $patch"
-              git -C mesa apply "../$patch"
-            done
-          else
-            echo "No custom patches: baseline build."
-          fi
+          set -euxo pipefail
 
-      - name: Build Turnip for Android ARM64
-        env:
-          API_LEVEL: "34"
-          PLATFORM_SDK: "34"
-        run: |
-          chmod +x scripts/build-turnip.sh
-          scripts/build-turnip.sh
-
-      - name: Package driver ZIP
-        env:
-          BUILD_NAME: "${{ inputs.build_name || 'Turnip MV POCO F6 A735 - Baseline R1' }}"
-          MESA_REF: "${{ inputs.mesa_ref || 'mesa-26.1.0' }}"
-        run: |
-          chmod +x scripts/package-driver.sh
-          scripts/package-driver.sh
-
-      - name: Upload driver artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Turnip-MV-Baseline-R1
-          path: output/*
-          if-no-files-found: error
-          retention-days: 30
-          
+         
