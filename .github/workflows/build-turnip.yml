@@ -156,7 +156,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with: 
-          nane: Turnip-MV-Eclipse-R3-build-logs
+          name: Turnip-MV-Eclipse-R3-build-logs
           path: |
             build-android-aarch64/meson-logs/*
             mesa-commit.txt
