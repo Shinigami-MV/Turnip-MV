@@ -87,7 +87,8 @@ meson setup "$BUILD_DIR" "$MESA_DIR" \
     -Dbuild-tests=false \
     -Dtools= \
     -Dvalgrind=disabled \
-    -Dlibarchive:openssl=disabled
+    -Dlibarchive:openssl=disabled \
+    -Dlibarchive:lz4=disabled
 
 echo "Compiling Turnip..."
 
@@ -105,11 +106,13 @@ if [[ -z "$LIB_PATH" || ! -f "$LIB_PATH" ]]; then
     echo "ERROR: libvulkan_freedreno.so was not produced."
     echo
     echo "Possible Vulkan libraries found:"
+
     find "$BUILD_DIR" \
         -maxdepth 8 \
         -type f \
         \( -name '*vulkan*.so' -o -name '*freedreno*.so' \) \
         -print || true
+
     exit 1
 fi
 
