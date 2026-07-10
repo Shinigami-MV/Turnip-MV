@@ -109,8 +109,7 @@ meson setup "$BUILD_DIR" "$MESA_DIR" \
     -Dlibarchive:tests=disabled\
     -Db_lto=true \
     -Db_lto_mode=thin \
-    -Db_ndebug=true \
-    -Dstrip=true
+    -Db_ndebug=true
 
 echo
 echo "Compiling Turnip..."
