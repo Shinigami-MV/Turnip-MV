@@ -35,6 +35,9 @@ if [[ ! -d "$TOOLCHAIN" ]]; then
     exit 1
 fi
 
+# Archivo de compilación cruzada Android ARM64.
+# /bin/false evita que pkg-config use por accidente
+# bibliotecas x86-64 instaladas en Ubuntu.
 cat > "$CROSS_FILE" <<EOF
 [constants]
 ndk_path = '$ANDROID_NDK_ROOT'
@@ -49,7 +52,7 @@ cpp_ld = 'lld'
 strip = toolchain / 'llvm-strip'
 ranlib = toolchain / 'llvm-ranlib'
 nm = toolchain / 'llvm-nm'
-pkg-config = 'pkg-config'
+pkg-config = '/bin/false'
 
 [host_machine]
 system = 'android'
@@ -67,6 +70,7 @@ cat "$CROSS_FILE"
 rm -rf "$BUILD_DIR"
 rm -rf "$STAGING_DIR"
 
+echo
 echo "Configuring Mesa..."
 
 meson setup "$BUILD_DIR" "$MESA_DIR" \
@@ -87,10 +91,24 @@ meson setup "$BUILD_DIR" "$MESA_DIR" \
     -Dbuild-tests=false \
     -Dtools= \
     -Dvalgrind=disabled \
-    -Dlibarchive:openssl=disabled \
+    -Dlibarchive:zlib=disabled \
+    -Dlibarchive:bz2lib=disabled \
+    -Dlibarchive:libb2=disabled \
+    -Dlibarchive:iconv=disabled \
     -Dlibarchive:lz4=disabled \
-    -Dlibarchive:zstd=disabled
+    -Dlibarchive:zstd=disabled \
+    -Dlibarchive:lzma=disabled \
+    -Dlibarchive:lzo2=disabled \
+    -Dlibarchive:cng=disabled \
+    -Dlibarchive:openssl=disabled \
+    -Dlibarchive:xml2=disabled \
+    -Dlibarchive:expat=disabled \
+    -Dlibarchive:regex=disabled \
+    -Dlibarchive:xattr=disabled \
+    -Dlibarchive:acl=disabled \
+    -Dlibarchive:tests=disabled
 
+echo
 echo "Compiling Turnip..."
 
 meson compile \
@@ -106,10 +124,10 @@ LIB_PATH="$(find "$BUILD_DIR" \
 if [[ -z "$LIB_PATH" || ! -f "$LIB_PATH" ]]; then
     echo "ERROR: libvulkan_freedreno.so was not produced."
     echo
-    echo "Possible Vulkan libraries found:"
+    echo "Possible Vulkan/Freedreno libraries found:"
 
     find "$BUILD_DIR" \
-        -maxdepth 8 \
+        -maxdepth 10 \
         -type f \
         \( -name '*vulkan*.so' -o -name '*freedreno*.so' \) \
         -print || true
@@ -125,6 +143,8 @@ cp "$LIB_PATH" "$STAGING_DIR/vulkan.ad07xx.so"
     --strip-unneeded \
     "$STAGING_DIR/vulkan.ad07xx.so" || true
 
+echo
+echo "Produced driver:"
 file "$STAGING_DIR/vulkan.ad07xx.so"
 
 sha256sum "$STAGING_DIR/vulkan.ad07xx.so" \
@@ -132,7 +152,7 @@ sha256sum "$STAGING_DIR/vulkan.ad07xx.so" \
 
 echo
 echo "========================================"
-echo "Turnip compilation completed."
-echo "Driver:"
-echo "$STAGING_DIR/vulkan.ad07xx.so"
+echo " Turnip compilation completed"
+echo " Driver:"
+echo " $STAGING_DIR/vulkan.ad07xx.so"
 echo "========================================"
