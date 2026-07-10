@@ -88,7 +88,8 @@ meson setup "$BUILD_DIR" "$MESA_DIR" \
     -Dtools= \
     -Dvalgrind=disabled \
     -Dlibarchive:openssl=disabled \
-    -Dlibarchive:lz4=disabled
+    -Dlibarchive:lz4=disabled \
+    -Dlibarchive:zstd=disabled
 
 echo "Compiling Turnip..."
 
