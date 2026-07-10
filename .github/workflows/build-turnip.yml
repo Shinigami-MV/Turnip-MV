@@ -11,7 +11,7 @@ on:
       build_name:
         description: "Driver name shown in Winlator"
         required: true
-        default: "Turnip MV Eclipse R2"
+        default: "Turnip MV Eclipse R3"
 
   push:
     branches:
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Eclipse R2 Android ARM64
+    name: Build Eclipse R3 Android ARM64
     runs-on: ubuntu-24.04
     timeout-minutes: 120
 
@@ -124,21 +124,21 @@ jobs:
           chmod +x scripts/build-turnip.sh
           scripts/build-turnip.sh
 
-      - name: Package Eclipse R2
+      - name: Package Eclipse R3
         shell: bash
         env:
           BUILD_NAME: "${{ inputs.build_name }}"
           MESA_REF: "${{ inputs.mesa_ref }}"
-          RELEASE_NAME: "Turnip-MV-Eclipse-R2"
+          RELEASE_NAME: "Turnip-MV-Eclipse-R3"
         run: |
           set -euxo pipefail
           chmod +x scripts/package-driver.sh
           scripts/package-driver.sh
 
-      - name: Upload Eclipse R2 artifact
+      - name: Upload Eclipse R3 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Turnip-MV-Eclipse-R2
+          name: Turnip-MV-Eclipse-R3
           path: output/*
           if-no-files-found: error
           retention-days: 30
@@ -146,8 +146,8 @@ jobs:
       - name: Upload logs if build fails
         if: failure()
         uses: actions/upload-artifact@v4
-        with:
-          name: Turnip-MV-Eclipse-R2-build-logs
+        with: 
+          nane: Turnip-MV-Eclipse-R3-build-logs
           path: |
             build-android-aarch64/meson-logs/*
             mesa-commit.txt
