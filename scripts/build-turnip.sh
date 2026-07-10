@@ -24,13 +24,13 @@ echo "API level:   $API_LEVEL"
 echo "========================================"
 
 if [[ ! -d "$MESA_DIR" ]]; then
-    echo "ERROR: Mesa source directory was not found:"
+    echo "ERROR: Mesa source directory not found:"
     echo "$MESA_DIR"
     exit 1
 fi
 
 if [[ ! -d "$TOOLCHAIN" ]]; then
-    echo "ERROR: Android NDK toolchain was not found:"
+    echo "ERROR: Android NDK toolchain not found:"
     echo "$TOOLCHAIN"
     exit 1
 fi
@@ -43,13 +43,7 @@ toolchain = ndk_path / 'toolchains/llvm/prebuilt/linux-x86_64/bin'
 [binaries]
 ar = toolchain / 'llvm-ar'
 c = ['ccache', toolchain / 'aarch64-linux-android${API_LEVEL}-clang']
-cpp = [
-  'ccache',
-  toolchain / 'aarch64-linux-android${API_LEVEL}-clang++',
-  '-fno-exceptions',
-  '-fno-unwind-tables',
-  '-fno-asynchronous-unwind-tables'
-]
+cpp = ['ccache', toolchain / 'aarch64-linux-android${API_LEVEL}-clang++', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables']
 c_ld = 'lld'
 cpp_ld = 'lld'
 strip = toolchain / 'llvm-strip'
@@ -66,6 +60,9 @@ endian = 'little'
 [properties]
 needs_exe_wrapper = true
 EOF
+
+echo "Generated cross file:"
+cat "$CROSS_FILE"
 
 rm -rf "$BUILD_DIR"
 rm -rf "$STAGING_DIR"
@@ -109,7 +106,7 @@ if [[ -z "$LIB_PATH" || ! -f "$LIB_PATH" ]]; then
     echo
     echo "Possible Vulkan libraries found:"
     find "$BUILD_DIR" \
-        -maxdepth 6 \
+        -maxdepth 8 \
         -type f \
         \( -name '*vulkan*.so' -o -name '*freedreno*.so' \) \
         -print || true
@@ -125,6 +122,7 @@ cp "$LIB_PATH" "$STAGING_DIR/vulkan.ad07xx.so"
     "$STAGING_DIR/vulkan.ad07xx.so" || true
 
 file "$STAGING_DIR/vulkan.ad07xx.so"
+
 sha256sum "$STAGING_DIR/vulkan.ad07xx.so" \
     | tee "$STAGING_DIR/SHA256SUMS.txt"
 
