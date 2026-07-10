@@ -5,9 +5,9 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 STAGING="$ROOT_DIR/staging"
 OUTPUT="$ROOT_DIR/output"
 
-BUILD_NAME="${BUILD_NAME:-Turnip MV Eclipse R2}"
+BUILD_NAME="${BUILD_NAME:-Turnip MV Eclipse R3}"
 MESA_REF="${MESA_REF:-mesa-26.1.4}"
-RELEASE_NAME="${RELEASE_NAME:-Turnip-MV-Eclipse-R2}"
+RELEASE_NAME="${RELEASE_NAME:-Turnip-MV-Eclipse-R3}"
 
 mkdir -p "$OUTPUT"
 
@@ -26,10 +26,10 @@ fi
 cat > "$STAGING/meta.json" <<EOF
 {
   "schemaVersion": 1,
-  "name": "$BUILD_NAME",
-  "description": "Turnip MV Eclipse R2 based on Mesa 26.1.4 for POCO F6, Snapdragon 8s Gen 3 and Adreno 735.",
+  "name": "Turnip MV Eclipse R3",
+  "description": "Turnip MV Eclipse R3 with ThinLTO release optimizations for POCO F6, Snapdragon 8s Gen 3 and Adreno 735.",
   "author": "Shinigami-MV",
-  "packageVersion": "2",
+  "packageVersion": "3",
   "vendor": "Mesa",
   "driverVersion": "$MESA_REF ($COMMIT)",
   "minApi": 28,
